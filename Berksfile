@@ -1,5 +1,6 @@
 source "https://api.berkshelf.com"
 
+cookbook "drupal", github: "joshuacox/drupal-cookbook"
 cookbook "vdd", github: "joshuacox/vdd-cookbook"
 cookbook "vdd_example", github: "joshuacox/vdd_example-cookbook"
 cookbook "apache2", github: "opscode-cookbooks/apache2"
