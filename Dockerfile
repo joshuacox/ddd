@@ -14,12 +14,12 @@ RUN /opt/chef/embedded/bin/gem install berkshelf
 RUN echo "Installing mysql now as the cookbook is failing This may take a few minutes...."
 RUN apt-get -y install mysql-server
 
-RUN echo "Installing berksfile"
+RUN echo "Installing berksfile..."
 ADD ./Berksfile /Berksfile
 ADD ./chef/roles /var/chef/roles
 ADD ./chef/solo.rb /var/chef/solo.rb
 ADD ./chef/solo.json /var/chef/solo.json
 
-RUN echo "Installing berks This may take a few minutes....."
+RUN echo "Installing berks This may take a few minutes......"
 RUN cd / && /opt/chef/embedded/bin/berks vendor /var/chef/cookbooks
 RUN chef-solo -c /var/chef/solo.rb -j /var/chef/solo.json
