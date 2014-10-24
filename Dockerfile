@@ -28,6 +28,8 @@ ADD ./apachestart.sh /apachestart.sh
 RUN chmod 755 /apachestart.sh
 EXPOSE 80
 ADD ./ddd.txt /ddd.txt
-RUN cat "/ddd.txt"
+ADD ./README.md /README.md
+ADD ./LICENSE /LICENSE
+RUN cat "/LICENSE" "/README.md" "/ddd.txt"
 
 ENTRYPOINT ["/bin/bash", "/apachestart.sh"]
