@@ -42,13 +42,14 @@ ADD ./README.md /README.md
 ADD ./LICENSE /LICENSE
 RUN cat "/LICENSE" "/README.md" "/ddd.txt"
 
-# Retrieve drupal
+# Retrieve drupal or supply your own not both
 RUN rm -rf /var/www/ ; cd /var ; drush dl drupal ; mv /var/drupal*/ /var/www/
 RUN chmod a+w /var/www/sites/default ; mkdir /var/www/sites/default/files ; chown -R www-data:www-data /var/www/
 # Or supply your own, modify start.sh accordingly (look for the comment)
-#ADD drush-archive.tar.gz /home/drush-archive.tar.gz
+#COPY drush-archive.tar.gz /home/drush-archive.tar.gz
 
 RUN easy_install supervisor
+RUN echo "foo...."
 ADD ./start.sh /start.sh
 ADD ./foreground.sh /etc/apache2/foreground.sh
 ADD ./supervisord.conf /etc/supervisord.conf

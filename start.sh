@@ -1,5 +1,4 @@
 #!/bin/bash
-if [ ! -f /var/www/sites/default/settings.php ]; then
   /etc/init.d/mysql stop
 	/usr/bin/mysqld_safe --skip-grant-tables &
 	sleep 10
@@ -19,13 +18,23 @@ if [ ! -f /var/www/sites/default/settings.php ]; then
 	sleep 3
 	mysql -uroot -p$MYSQL_PASSWORD -e "CREATE DATABASE drupal; GRANT ALL PRIVILEGES ON drupal.* TO 'drupal'@'localhost' IDENTIFIED BY '$DRUPAL_PASSWORD'; FLUSH PRIVILEGES;"
 	mysql -uroot -p$MYSQL_PASSWORD -e "show grants for drupal@localhost;"
-	sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/sites-available/default
-	a2enmod rewrite vhost_alias
+	#sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/sites-available/default
+	#a2enmod rewrite vhost_alias
+	a2enmod vhost_alias
 	cd /var/www/
-	drush site-install standard -y --account-name=admin --account-pass=admin --db-url="mysqli://drupal:${DRUPAL_PASSWORD}@localhost:3306/drupal"
-  # Have your own archive to restore from? comment the above and uncomment below
-	#drush archive-restore --db-url="mysqli://drupal:${DRUPAL_PASSWORD}@localhost:3306/drupal" --overwrite --destination=/var/www/ /home/drush-archive.tar.gz
+if [ -f /home/drush-archive.tar.gz ]; then
+  echo "DRUPAL-INSTALL from BACKUP /home/drush-archive.tar.gz"
+  # Have your own archive to restore from? supply it in /home/
+  rm -Rf /var/www/*
+	cd /var/www/
+  drush archive-restore --db-url="mysqli://drupal:${DRUPAL_PASSWORD}@localhost:3306/drupal" --overwrite --destination=/var/www/ /home/drush-archive.tar.gz
+else
+  echo 'DRUPAL-INSTALL from -->>>| D R U S H |<<<---'
+  drush site-install standard -y --account-name=admin --account-pass=admin --db-url="mysqli://drupal:${DRUPAL_PASSWORD}@localhost:3306/drupal"
+fi
+  chmod a+w /var/www/sites/default
+  mkdir /var/www/sites/default/files
+  chown -R www-data. /var/www
 	killall mysqld
 	sleep 10
-fi
-supervisord -n
+supervisord -n -c /etc/supervisord.conf
