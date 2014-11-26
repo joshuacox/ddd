@@ -4,7 +4,7 @@ MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 ENV DEBIAN_FRONTEND noninteractive
 
 #oltorf proxy
-#RUN echo 'Acquire::http::Proxy "http://65.67.51.187:3142";'>>/etc/apt/apt.conf
+RUN echo 'Acquire::http::Proxy "http://65.67.51.187:3142";'>>/etc/apt/apt.conf
 RUN apt-get -y update
 RUN apt-get -y install python-software-properties curl build-essential libxml2-dev libxslt-dev git ruby1.9.1-dev ca-certificates sudo net-tools vim
 #RUN apt-get -y update
