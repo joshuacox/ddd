@@ -21,6 +21,10 @@ and simply place a drush tarball in the current directory named drush-archive (i
 to enter a shell in your new installation use nsenter:
 https://github.com/jpetazzo/nsenter
 
+or more modernly:
+
+docker exec -i -t CONTAINER_ID /bin/bash
+
 e.g. if this is the only container running on your laptop 
 ```
 docker-enter `docker ps -q`

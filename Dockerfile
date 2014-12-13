@@ -1,20 +1,7 @@
-FROM debian:wheezy
+FROM joshuacox/docker-chef-solo
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
-
-#oltorf proxy
-#RUN echo 'Acquire::http::Proxy "http://65.67.51.187:3142";'>>/etc/apt/apt.conf
-RUN apt-get -y update
-RUN apt-get -y install python-software-properties curl build-essential libxml2-dev libxslt-dev git ruby1.9.1-dev ca-certificates sudo net-tools vim
-#RUN apt-get -y update
-RUN apt-get -y dist-upgrade
-
-RUN echo "Installing Chef This may take a few minutes..."
-RUN curl -L https://www.getchef.com/chef/install.sh | sudo bash
-RUN echo "gem: --no-ri --no-rdoc" > ~/.gemrc
-RUN /opt/chef/embedded/bin/gem install berkshelf
-RUN echo "Installing mysql now as the cookbook is failing This may take a few minutes..."
 
 RUN echo "Installing berksfile..."
 ADD ./Berksfile /Berksfile
