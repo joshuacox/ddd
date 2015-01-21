@@ -2,6 +2,9 @@ FROM joshuacox/docker-chef-solo
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV RUBYOPTS "-E utf-8"
 
 RUN echo "Installing berksfile..."
 ADD ./Berksfile /Berksfile
@@ -11,6 +14,7 @@ ADD ./chef/solo.json /var/chef/solo.json
 
 RUN echo "Installing berks This may take a few minutes..."
 RUN cd / && /opt/chef/embedded/bin/berks vendor /var/chef/cookbooks
+RUN echo "Installing chef This may take a few minutes..."
 RUN chef-solo -c /var/chef/solo.rb -j /var/chef/solo.json
 
 #### DDD
