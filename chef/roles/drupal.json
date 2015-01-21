@@ -53,8 +53,6 @@
   "run_list": [
     "recipe[apt]",
     "recipe[apache2]",
-    "recipe[mysql::client]",
-    "recipe[mysql::server]",
     "recipe[drupal::apache]",
     "recipe[vdd::graphviz]",
     "recipe[drupal::vdd_sites]",

@@ -1,10 +1,17 @@
-FROM joshuacox/docker-chef-solo
+FROM joshuacox/docker-chef-solo:jessie
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
+# ENV LC_ALL en_US.UTF-8
+# ENV RUBYOPTS "-E utf-8"
+RUN apt-get -y install locales
+# RUN echo 'en_US.ISO-8859-15 ISO-8859-15'>>/etc/locale.gen
+# RUN echo 'en_US ISO-8859-1'>>/etc/locale.gen
+RUN echo 'en_US.UTF-8 UTF-8'>>/etc/locale.gen
+RUN locale-gen
 ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV RUBYOPTS "-E utf-8"
+RUN locale -a
+
 
 RUN echo "Installing berksfile..."
 ADD ./Berksfile /Berksfile
