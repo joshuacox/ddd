@@ -12,7 +12,7 @@ RUN echo 'en_US.UTF-8 UTF-8'>>/etc/locale.gen
 RUN locale-gen
 ENV LANG en_US.UTF-8
 
-RUN echo "Installing berksfile..."
+RUN echo "Installing berksfile...."
 ADD ./Berksfile /Berksfile
 ADD ./chef/roles /var/chef/roles
 ADD ./chef/solo.rb /var/chef/solo.rb
