@@ -1,7 +1,8 @@
-FROM joshuacox/docker-chef-solo:wheezy
+FROM joshuacox/docker-chef-solo:precise
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV DDD_updated 20140204
 RUN apt-get -y install mysql-server
 
 # This block became necessary with the new chef 12
@@ -12,7 +13,7 @@ RUN echo 'en_US.UTF-8 UTF-8'>>/etc/locale.gen
 RUN locale-gen
 ENV LANG en_US.UTF-8
 
-RUN echo "Installing berksfile...."
+RUN echo "Installing berksfile..."
 ADD ./Berksfile /Berksfile
 ADD ./chef/roles /var/chef/roles
 ADD ./chef/solo.rb /var/chef/solo.rb
