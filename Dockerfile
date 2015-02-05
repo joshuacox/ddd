@@ -1,4 +1,4 @@
-FROM joshuacox/docker-chef-solo:precise
+FROM joshuacox/docker-chef-solo:wheezy
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
