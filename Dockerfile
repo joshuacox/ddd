@@ -2,7 +2,7 @@ FROM joshuacox/docker-chef-solo:wheezy
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV DDD_updated 20140204
+ENV DDD_updated 20140217
 RUN apt-get -y install mysql-server
 
 # This block became necessary with the new chef 12
