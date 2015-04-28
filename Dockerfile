@@ -3,6 +3,7 @@ MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DDD_updated 20150428
+RUN apt-get update
 RUN apt-get -y install mysql-server
 
 # This block became necessary with the new chef 12
