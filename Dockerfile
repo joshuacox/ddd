@@ -2,7 +2,7 @@ FROM joshuacox/docker-chef-solo:wheezy
 MAINTAINER Josh Cox <josh 'at' webhosting.coop>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV DDD_updated 20150505
+ENV DDD_updated 20150512
 RUN apt-get update
 RUN apt-get -y install mysql-server
 
