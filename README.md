@@ -11,7 +11,7 @@ This will run your docker container
 ```
 ./run.sh
 ```
-you can supply your own dush archive by uncommenting the following line in the Dockerfile
+you can supply your own drush archive by uncommenting the following line in the Dockerfile
 
 ```
 #COPY drush-archive.tar.gz /home/drush-archive.tar.gz
