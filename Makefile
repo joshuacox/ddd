@@ -1,4 +1,4 @@
-.PHONY: all help build run builddocker rundocker kill rm-image rm clean enter logs
+.PHONY: all help build run builddocker rundocker kill rm-image rm clean enter logs ps prod temp ddd
 
 user = $(shell whoami)
 ifeq ($(user),root)
@@ -24,7 +24,7 @@ temp: MYSQL_PASS rm build mysqltemp runmysqltemp ddd ps
 
 # run a  container that requires mysql in production with persistent data
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
-prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS rm build mysqlcid runprod ddd ps
+prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS rm  mysqlcid runprod ddd ps
 
 ddd:
 	@cat ddd.txt
