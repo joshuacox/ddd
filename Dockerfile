@@ -1,1 +1,1 @@
-FROM drupal:7
+FROM drupal:8

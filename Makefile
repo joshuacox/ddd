@@ -155,6 +155,9 @@ mysqltemp:
 	--cidfile="mysqltemp" \
 	--name `cat NAME`-mysqltemp \
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
+	-e MYSQL_PASSWORD=`cat MYSQL_PASS` \
+	-e MYSQL_USER=drupal \
+	-e MYSQL_DATABASE=drupal \
 	-d \
 	mysql:5.5
 
