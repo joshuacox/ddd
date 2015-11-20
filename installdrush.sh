@@ -10,3 +10,9 @@ mv drush.phar /usr/local/bin/drush
 
 # Enrich the bash startup file with completion and aliases.
 drush init
+
+rm -Rf /var/www/html
+cd /var/www
+drush dl drupal-8
+mv drupal-8.0.0 html;
+chown -R www-data. html
