@@ -19,47 +19,12 @@ help:
 
 build: NAME TAG builddocker
 
-# run a plain container
-run: build rundocker
-
 # run a  container that requires mysql temporarily
 temp: MYSQL_PASS rm build mysqltemp runmysqltemp
 
 # run a  container that requires mysql in production with persistent data
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
 prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS rm build mysqlcid runprod
-
-## useful hints
-## specifiy ports
-#-p 44180:80 \
-#-p 27005:27005/udp \
-## link another container
-#--link some-mysql:mysql \
-## assign environmant variables
-#--env STEAM_USERNAME=`cat steam_username` \
-#--env STEAM_PASSWORD=`cat steam_password` \
-
-# change uid in the container for easy dev work
-# first you need to determin your user:
-# $(eval UID := $(shell id -u))
-# then you need to insert this as a env var:
-# -e "DOCKER_UID=$(UID)" \
-# then look at chguid.sh for an example of 
-# what needs to be run in the live container upon startup
-
-rundocker:
-	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
-	$(eval NAME := $(shell cat NAME))
-	$(eval TAG := $(shell cat TAG))
-	chmod 777 $(TMP)
-	@docker run --name=$(NAME) \
-	--cidfile="cid" \
-	-v $(TMP):/tmp \
-	-d \
-	-P \
-	-v /var/run/docker.sock:/run/docker.sock \
-	-v $(shell which docker):/bin/docker \
-	-t $(TAG)
 
 runmysqltemp:
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
@@ -70,7 +35,7 @@ runmysqltemp:
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
-	-P \
+	-p 80:80 \
 	--link `cat NAME`-mysqltemp:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
@@ -78,9 +43,6 @@ runmysqltemp:
 
 runprod:
 	$(eval APACHE_DATADIR := $(shell cat APACHE_DATADIR))
-	ifeq ($(APACHE_DATADIR),'')
-	$(error  "try make runmysqltemp and then make grab once you have initialized your installation")
-	endif
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
 	$(eval TAG := $(shell cat TAG))
@@ -89,7 +51,7 @@ runprod:
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
-	-P \
+	-p 80:80 \
 	--link `cat NAME`-mysql:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(APACHE_DATADIR):/var/www/html \
@@ -131,9 +93,6 @@ TAG:
 
 mysqlcid:
 	$(eval MYSQL_DATADIR := $(shell cat MYSQL_DATADIR))
-	ifeq ($(MYSQL_DATADIR),'')
-	$(error  "try make runmysqltemp and then make grab once you have initialized your installation")
-	endif
 	docker run \
 	--cidfile="mysqlcid" \
 	--name `cat NAME`-mysql \
@@ -172,17 +131,20 @@ rmall: rm rmmysqltemp rmmysql
 
 grab: grabapachedir grabmysqldatadir
 
+# sudo on the cp as I am getting errors on btrfs storage driven docker systems
+
 grabmysqldatadir:
 	-mkdir -p datadir
-	docker cp `cat mysqltemp`:/var/lib/mysql datadir/
+	sudo docker cp `cat mysqltemp`:/var/lib/mysql datadir/
 	sudo chown -R $(user). datadir/mysql
 	echo `pwd`/datadir/mysql > MYSQL_DATADIR
 
 grabapachedir:
 	-mkdir -p datadir
-	docker cp `cat cid`:/var/www/html datadir/
-	sudo chown -R $(user). datadir/mysql
+	sudo docker cp `cat cid`:/var/www/html datadir/
 	echo `pwd`/datadir/html > APACHE_DATADIR
+
+#	sudo chown -R $(user). datadir/html
 
 APACHE_DATADIR:
 	@while [ -z "$$APACHE_DATADIR" ]; do \

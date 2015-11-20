@@ -3,29 +3,20 @@ ddd
 
 Docker Drupal Development
 
-This will build your docker container
+Build a container from scratch, this will prompt you for a few details like a Mysql password (which will be stored locally)
 ```
-./build.sh
+make temp
 ```
-This will run your docker container
-```
-./run.sh
-```
-you can supply your own drush archive by uncommenting the following line in the Dockerfile
+and you should be able to install a drupal site using the password you just gave, mysqluser=drupal database=drupal mysqlhost=mysql
 
+to grab the data directories from apache and mysql do:
 ```
-#COPY drush-archive.tar.gz /home/drush-archive.tar.gz
+make grab
 ```
-and simply place a drush tarball in the current directory named drush-archive (if you want to change the name you need to do so in start.sh as well)
 
-to enter a shell in your new installation use nsenter:
-https://github.com/jpetazzo/nsenter
-
-or more modernly:
-
-docker exec -i -t CONTAINER_ID /bin/bash
-
-e.g. if this is the only container running on your laptop 
+then you should be able to:
 ```
-docker-enter `docker ps -q`
+make prod
 ```
+
+and run a persistent local drupal 8 install, if you want to try drupal 7 change out the 8 for a 7 in the FROM line of the Dockerfile
