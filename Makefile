@@ -20,14 +20,17 @@ help:
 build: NAME TAG builddocker
 
 # run a  container that requires mysql temporarily
-temp: MYSQL_PASS rm build mysqltemp runmysqltemp ddd
+temp: MYSQL_PASS rm build mysqltemp runmysqltemp ddd ps
 
 # run a  container that requires mysql in production with persistent data
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
-prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS rm build mysqlcid runprod ddd
+prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS rm build mysqlcid runprod ddd ps
 
 ddd:
 	@cat ddd.txt
+
+ps:
+	@docker ps
 
 runmysqltemp:
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
