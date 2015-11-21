@@ -65,7 +65,7 @@ runprod:
 	-t $(TAG)
 
 builddocker:
-	/usr/bin/time -v docker build -t `cat TAG` .
+	docker build -t `cat TAG` .
 
 kill:
 	-@docker kill `cat cid`
