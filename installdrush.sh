@@ -15,4 +15,4 @@ rm -Rf /var/www/html
 cd /var/www
 drush dl drupal-8
 mv drupal-8.0.0 html;
-chown -R www-data. html
+chown -R www-data. /var/www
