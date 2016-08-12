@@ -100,7 +100,7 @@ mysqlcid:
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
 	-d \
 	-v $(MYSQL_DATADIR):/var/lib/mysql \
-	mysql:5.5
+	mysql:5.7
 
 rmmysql: mysqlcid-rmkill
 
@@ -119,7 +119,7 @@ mysqltemp:
 	-e MYSQL_USER=drupal \
 	-e MYSQL_DATABASE=drupal \
 	-d \
-	mysql:5.5
+	mysql:5.7
 
 rmmysqltemp: mysqltemp-rmkill
 
