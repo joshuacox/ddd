@@ -162,3 +162,4 @@ MYSQL_PASS:
 		read -r -p "Enter the MySQL password you wish to associate with this container [MYSQL_PASS]: " MYSQL_PASS; echo "$$MYSQL_PASS">>MYSQL_PASS; cat MYSQL_PASS; \
 	done ;
 
+next: grab rmall prod
