@@ -15,11 +15,11 @@ help:
 build: NAME TAG builddocker
 
 # run a  container that requires mysql temporarily
-temp: MYSQL_PASS build mysqltemp runmysqltemp ddd ps
+temp: IP PORT MYSQL_PASS build mysqltemp runmysqltemp ddd ps
 
 # run a  container that requires mysql in production with persistent data
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
-prod: APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS mysqlcid runprod ddd ps
+prod: IP PORT APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS mysqlcid runprod ddd ps
 
 ddd:
 	@cat ddd.txt
@@ -31,12 +31,14 @@ runmysqltemp:
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
 	$(eval TAG := $(shell cat TAG))
+	$(eval IP := $(shell cat IP))
+	$(eval PORT := $(shell cat PORT))
 	chmod 777 $(TMP)
 	@docker run --name=$(NAME) \
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
-	-p 80:80 \
+	--publish=$(IP):$(PORT):80 \
 	--link `cat NAME`-mysqltemp:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
@@ -47,12 +49,14 @@ runprod:
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
 	$(eval TAG := $(shell cat TAG))
+	$(eval IP := $(shell cat IP))
+	$(eval PORT := $(shell cat PORT))
 	chmod 777 $(TMP)
 	@docker run --name=$(NAME) \
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
-	-p 80:80 \
+	--publish=$(IP):$(PORT):80 \
 	--link `cat NAME`-mysql:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(APACHE_DATADIR):/var/www/html \
@@ -160,6 +164,16 @@ MYSQL_DATADIR:
 MYSQL_PASS:
 	@while [ -z "$$MYSQL_PASS" ]; do \
 		read -r -p "Enter the MySQL password you wish to associate with this container [MYSQL_PASS]: " MYSQL_PASS; echo "$$MYSQL_PASS">>MYSQL_PASS; cat MYSQL_PASS; \
+	done ;
+
+PORT:
+	@while [ -z "$$PORT" ]; do \
+		read -r -p "Enter the port you wish to associate with this container [PORT]: " PORT; echo "$$PORT">>PORT; cat PORT; \
+	done ;
+
+IP:
+	@while [ -z "$$IP" ]; do \
+		read -r -p "Enter the IP you wish to associate with this redmine [IP]: " IP; echo "$$IP">>IP; cat IP; \
 	done ;
 
 next: grab rmall prod
