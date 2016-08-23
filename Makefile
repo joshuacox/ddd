@@ -25,7 +25,7 @@ ddd:
 	@cat ddd.txt
 
 ps:
-	@docker ps
+	@docker ps | grep ddd
 
 runmysqltemp:
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
@@ -39,7 +39,7 @@ runmysqltemp:
 	-v $(TMP):/tmp \
 	-d \
 	--publish=$(IP):$(PORT):80 \
-	--link `cat NAME`-mysqltemp:mysql \
+	--link $(NAME)-mysqltemp:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
@@ -52,12 +52,12 @@ runprod:
 	$(eval IP := $(shell cat IP))
 	$(eval PORT := $(shell cat PORT))
 	chmod 777 $(TMP)
-	@docker run --name=$(NAME) \
+	docker run --name=$(NAME) \
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
 	--publish=$(IP):$(PORT):80 \
-	--link `cat NAME`-mysql:mysql \
+	--link $(NAME)-mysql:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(APACHE_DATADIR):/var/www/html \
 	-v $(shell which docker):/bin/docker \
@@ -98,9 +98,10 @@ TAG:
 
 mysqlcid:
 	$(eval MYSQL_DATADIR := $(shell cat MYSQL_DATADIR))
+	$(eval NAME := $(shell cat NAME))
 	docker run \
 	--cidfile="mysqlcid" \
-	--name `cat NAME`-mysql \
+	--name $(NAME)-mysql \
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
 	-d \
 	-v $(MYSQL_DATADIR):/var/lib/mysql \
@@ -115,9 +116,10 @@ mysqlcid-rmkill:
 
 # This one is ephemeral and will not persist data
 mysqltemp:
+	$(eval NAME := $(shell cat NAME))
 	docker run \
 	--cidfile="mysqltemp" \
-	--name `cat NAME`-mysqltemp \
+	--name $(NAME)-mysqltemp \
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
 	-e MYSQL_PASSWORD=`cat MYSQL_PASS` \
 	-e MYSQL_USER=drupal \
