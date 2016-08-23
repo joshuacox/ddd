@@ -147,6 +147,7 @@ grabmysqldatadir:
 grabapachedir:
 	-mkdir -p datadir
 	sudo docker cp `cat cid`:/var/www/html datadir/
+	sudo chown -R www-data. datadir/html
 	echo `pwd`/datadir/html > APACHE_DATADIR
 
 #	sudo chown -R $(user). datadir/html
