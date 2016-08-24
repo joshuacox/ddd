@@ -15,7 +15,7 @@ help:
 build: NAME TAG builddocker
 
 # run a  container that requires mysql temporarily
-temp: IP PORT MYSQL_PASS build mysqltemp runmysqltemp ddd ps
+temp: MYSQL_DB MYSQL_USER MYSQL_PASS IP PORT  build mysqltemp runmysqltemp ddd ps
 
 # run a  container that requires mysql in production with persistent data
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
@@ -117,13 +117,16 @@ mysqlcid-rmkill:
 # This one is ephemeral and will not persist data
 mysqltemp:
 	$(eval NAME := $(shell cat NAME))
+	$(eval MYSQL_USER := $(shell cat MYSQL_USER))
+	$(eval MYSQL_PASS := $(shell cat MYSQL_PASS))
+	$(eval MYSQL_DB := $(shell cat MYSQL_DB))
 	docker run \
 	--cidfile="mysqltemp" \
 	--name $(NAME)-mysqltemp \
-	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
-	-e MYSQL_PASSWORD=`cat MYSQL_PASS` \
-	-e MYSQL_USER=drupal \
-	-e MYSQL_DATABASE=drupal \
+	-e MYSQL_ROOT_PASSWORD=$(MYSQL_PASS) \
+	-e MYSQL_PASSWORD=$(MYSQL_PASS) \
+	-e MYSQL_USER=$(MYSQL_USER) \
+	-e MYSQL_DATABASE=$(MYSQL_DB) \
 	-d \
 	mysql:5.7
 
@@ -167,6 +170,16 @@ MYSQL_DATADIR:
 MYSQL_PASS:
 	@while [ -z "$$MYSQL_PASS" ]; do \
 		read -r -p "Enter the MySQL password you wish to associate with this container [MYSQL_PASS]: " MYSQL_PASS; echo "$$MYSQL_PASS">>MYSQL_PASS; cat MYSQL_PASS; \
+	done ;
+
+MYSQL_USER:
+	@while [ -z "$$MYSQL_USER" ]; do \
+		read -r -p "Enter the MySQL user you wish to associate with this container [MYSQL_USER]: " MYSQL_USER; echo "$$MYSQL_USER">>MYSQL_USER; cat MYSQL_USER; \
+	done ;
+
+MYSQL_DB:
+	@while [ -z "$$MYSQL_DB" ]; do \
+		read -r -p "Enter the MySQL database you wish to associate with this container [MYSQL_DB]: " MYSQL_DB; echo "$$MYSQL_DB">>MYSQL_DB; cat MYSQL_DB; \
 	done ;
 
 PORT:
