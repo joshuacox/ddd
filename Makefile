@@ -149,14 +149,14 @@ grab: grabapachedir grabmysqldatadir
 grabmysqldatadir:
 	-mkdir -p datadir
 	sudo docker cp `cat mysqltemp`:/var/lib/mysql datadir/
-	sudo chown -R $(user). datadir/mysql
 	echo `pwd`/datadir/mysql > MYSQL_DATADIR
+	-@sudo chown -R $(user). datadir/mysql
 
 grabapachedir:
 	-mkdir -p datadir
 	sudo docker cp `cat cid`:/var/www/html datadir/
-	sudo chown -R www-data. datadir/html
 	echo `pwd`/datadir/html > APACHE_DATADIR
+	-@sudo chown -R www-data. datadir/html
 
 #	sudo chown -R $(user). datadir/html
 
