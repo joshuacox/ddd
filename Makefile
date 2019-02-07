@@ -21,6 +21,9 @@ temp: MYSQL_DB MYSQL_USER MYSQL_PASS IP PORT  build mysqltemp runmysqltemp ddd p
 # HINT: use the grabmysqldatadir recipe to grab the data directory automatically from the above runmysqltemp
 prod: IP PORT APACHE_DATADIR MYSQL_DATADIR MYSQL_PASS mysqlcid runprod ddd ps
 
+pull:
+	@docker pull joshuacox/ddd
+
 ddd:
 	@cat ddd.txt
 
