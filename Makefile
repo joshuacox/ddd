@@ -92,7 +92,7 @@ logs:
 
 NETWORK: .net
 	$(eval NET := $(shell cat .net))
-	docker network create $$NET
+	docker network create $(NET)
 
 .net:
 	@while [ -z "$$NET" ]; do \
