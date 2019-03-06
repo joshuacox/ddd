@@ -30,27 +30,30 @@ ddd:
 ps:
 	@docker ps | grep ddd
 
-runmysqltemp:
+runmysqltemp: .net
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
+	$(eval NET := $(shell cat .net))
 	$(eval TAG := $(shell cat TAG))
 	$(eval IP := $(shell cat IP))
 	$(eval PORT := $(shell cat PORT))
 	chmod 777 $(TMP)
-	@docker run --name=$(NAME) \
+	docker run --name=$(NAME) \
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
+	--network $(NET) \
+	--network-alias mysqltemp \
 	--publish=$(IP):$(PORT):80 \
-	--link $(NAME)-mysqltemp:mysql \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
 
-runprod:
+runprod: .net
 	$(eval APACHE_DATADIR := $(shell cat APACHE_DATADIR))
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
+	$(eval NET := $(shell cat .net))
 	$(eval TAG := $(shell cat TAG))
 	$(eval IP := $(shell cat IP))
 	$(eval PORT := $(shell cat PORT))
@@ -60,7 +63,8 @@ runprod:
 	-v $(TMP):/tmp \
 	-d \
 	--publish=$(IP):$(PORT):80 \
-	--link $(NAME)-mysql:mysql \
+	--network $(NET) \
+	--network-alias ddd \
 	-v /var/run/docker.sock:/run/docker.sock \
 	-v $(APACHE_DATADIR):/var/www/html \
 	-v $(shell which docker):/bin/docker \
@@ -86,6 +90,13 @@ enter:
 logs:
 	docker logs -f `cat cid`
 
+.net:
+	@while [ -z "$$NET" ]; do \
+		read -r -p "Enter the name of the network you wish to associate with this container [NET]: " NET; echo "$$NET">>.net; cat .net; \
+	done ;
+	$(eval NET := $(shell cat .net))
+	docker network create $(NET)
+
 NAME:
 	@while [ -z "$$NAME" ]; do \
 		read -r -p "Enter the name you wish to associate with this container [NAME]: " NAME; echo "$$NAME">>NAME; cat NAME; \
@@ -99,14 +110,18 @@ TAG:
 # MYSQL additions
 # use these to generate a mysql container that may or may not be persistent
 
-mysqlcid:
+mysqlcid: .net
 	$(eval MYSQL_DATADIR := $(shell cat MYSQL_DATADIR))
 	$(eval NAME := $(shell cat NAME))
+	$(eval NET := $(shell cat .net))
 	docker run \
 	--cidfile="mysqlcid" \
+	--network $(NET) \
 	--name $(NAME)-mysql \
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
 	-d \
+	--network ddd \
+	--network-alias mysql \
 	-v $(MYSQL_DATADIR):/var/lib/mysql \
 	mysql:5.7
 
