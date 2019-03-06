@@ -30,7 +30,7 @@ ddd:
 ps:
 	@docker ps | grep ddd
 
-runmysqltemp: .net
+runmysqltemp: NETWORK
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
 	$(eval NET := $(shell cat .net))
@@ -49,7 +49,7 @@ runmysqltemp: .net
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
 
-runprod: .net
+runprod: NETWORK
 	$(eval APACHE_DATADIR := $(shell cat APACHE_DATADIR))
 	$(eval TMP := $(shell mktemp -d --suffix=DOCKERTMP))
 	$(eval NAME := $(shell cat NAME))
@@ -90,12 +90,15 @@ enter:
 logs:
 	docker logs -f `cat cid`
 
+NETWORK: .net
+	$(eval NET := $(shell cat .net))
+	docker network create $$NET
+
 .net:
 	@while [ -z "$$NET" ]; do \
 		read -r -p "Enter the name of the network you wish to associate with this container [NET]: " NET; echo "$$NET">>.net; cat .net; \
 	done ;
-	$(eval NET := $(shell cat .net))
-	docker network create $(NET)
+	cat .net
 
 NAME:
 	@while [ -z "$$NAME" ]; do \
@@ -110,7 +113,7 @@ TAG:
 # MYSQL additions
 # use these to generate a mysql container that may or may not be persistent
 
-mysqlcid: .net
+mysqlcid: NETWORK
 	$(eval MYSQL_DATADIR := $(shell cat MYSQL_DATADIR))
 	$(eval NAME := $(shell cat NAME))
 	$(eval NET := $(shell cat .net))
