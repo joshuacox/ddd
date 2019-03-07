@@ -71,11 +71,14 @@ runprod: .net
 	-t $(TAG)
 
 ssl_proxy: docker_ssl_proxy/cert.pem
+	$(eval NAME := $(shell cat NAME))
+	$(eval NET := $(shell cat .net))
 	docker run --name=$(NAME)_nginx_proxy \
 	-d \
 	-v `pwd`/docker_ssl_proxy:/etc/nginx/conf.d \
 	--network $(NET) \
 	--network-alias ssl \
+	--cidfile=".sslcid" \
 	-p 443:443 \
 	nginx:alpine
 
@@ -177,7 +180,12 @@ mysqltemp-rmkill:
 	-@docker rm `cat mysqltemp`
 	-@rm mysqltemp
 
-rmall: rm rmmysqltemp rmmysql
+rmssl:
+	-@docker kill `cat .sslcid`
+	-@docker rm `cat .sslcid`
+	-@rm .sslcid
+
+rmall: rm rmmysqltemp rmmysql rmssl
 
 grab: grabapachedir grabmysqldatadir
 
