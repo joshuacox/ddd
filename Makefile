@@ -70,13 +70,19 @@ runprod: .net
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
 
-ssl_proxy:
+ssl_proxy: docker_ssl_proxy/cert.pem
 	docker run --name=$(NAME)_nginx_proxy \
 	-d \
 	-v `pwd`/docker_ssl_proxy:/etc/nginx/conf.d \
+	--network $(NET) \
+	--network-alias ssl \
 	-p 443:443 \
 	nginx:alpine
 
+docker_ssl_proxy/cert.pem: DOMAIN
+	$(eval DOMAIN := $(shell cat DOMAIN))
+	cd docker_ssl_proxy \
+	openssl req -subj "/CN=$(DOMAIN)" -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365
 
 builddocker:
 	docker build -t `cat TAG` .
@@ -107,6 +113,11 @@ NETWORK: .net
 		read -r -p "Enter the name of the network you wish to associate with this container [NET]: " NET; echo "$$NET">>.net; docker network create $$NET && cat .net; \
 	done ;
 
+DOMAIN:
+	@while [ -z "$$DOMAIN" ]; do \
+		read -r -p "Enter the name you wish to associate with this container [DOMAIN]: " DOMAIN; echo "$$DOMAIN">>DOMAIN; cat DOMAIN; \
+	done ;
+
 NAME:
 	@while [ -z "$$NAME" ]; do \
 		read -r -p "Enter the name you wish to associate with this container [NAME]: " NAME; echo "$$NAME">>NAME; cat NAME; \
@@ -130,6 +141,7 @@ mysqlcid: .net
 	--name $(NAME)-mysql \
 	-e MYSQL_ROOT_PASSWORD=`cat MYSQL_PASS` \
 	-d \
+	--network $(NET) \
 	--network ddd \
 	--network-alias mysql \
 	-v $(MYSQL_DATADIR):/var/lib/mysql \
