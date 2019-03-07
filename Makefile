@@ -70,6 +70,14 @@ runprod: .net
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
 
+ssl_proxy:
+	docker run --name=$(NAME)_nginx_proxy \
+	-d \
+	-v `pwd`/docker_ssl_proxy:/etc/nginx/conf.d \
+	-p 443:443 \
+	nginx:alpine
+
+
 builddocker:
 	docker build -t `cat TAG` .
 
