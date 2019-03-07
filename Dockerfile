@@ -1,4 +1,4 @@
-FROM drupal:7
+FROM drupal:8
 
 RUN apt-get update
 RUN apt-get install -y wget mysql-client git \
