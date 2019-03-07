@@ -37,7 +37,7 @@ runmysqltemp:
 	$(eval IP := $(shell cat IP))
 	$(eval PORT := $(shell cat PORT))
 	chmod 777 $(TMP)
-	@docker run --name=$(NAME) \
+	docker run --name=$(NAME) \
 	--cidfile="cid" \
 	-v $(TMP):/tmp \
 	-d \
@@ -65,6 +65,14 @@ runprod:
 	-v $(APACHE_DATADIR):/var/www/html \
 	-v $(shell which docker):/bin/docker \
 	-t $(TAG)
+
+ssl_proxy:
+	docker run --name=$(NAME)_nginx_proxy \
+	-d \
+	-v `pwd`/docker_ssl_proxy:/etc/nginx/conf.d \
+	-p 443:443 \
+	nginx:alpine
+
 
 builddocker:
 	docker build -t `cat TAG` .
