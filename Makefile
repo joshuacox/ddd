@@ -84,7 +84,7 @@ ssl_proxy: docker_ssl_proxy/cert.pem
 
 docker_ssl_proxy/cert.pem: DOMAIN
 	$(eval DOMAIN := $(shell cat DOMAIN))
-	cd docker_ssl_proxy \
+	cd docker_ssl_proxy && \
 	openssl req -subj "/CN=$(DOMAIN)" -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365
 
 builddocker:
