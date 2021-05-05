@@ -237,7 +237,7 @@ PORT:
 
 IP:
 	@while [ -z "$$IP" ]; do \
-		read -r -p "Enter the IP you wish to associate with this redmine [IP]: " IP; echo "$$IP">>IP; cat IP; \
+		read -r -p "Enter the IP you wish to associate with this drupal [IP]: " IP; echo "$$IP">>IP; cat IP; \
 	done ;
 
 next: grab rmall prod
