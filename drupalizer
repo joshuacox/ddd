@@ -1,5 +1,4 @@
 #!/bin/bash
-#set -eux
 set -eu
 export THIS_CWD=$(pwd)
 : ${DB_IMAGE:='mysql:5.7'}
@@ -10,9 +9,9 @@ export THIS_CWD=$(pwd)
 : ${DB_USER:=ddduser}
 : ${DB_PASSWORD:=dddpass}
 : ${ROOT_MYSQLPASS:=dddrootpass}
-mkdir -p db
 
 init_db () {
+  mkdir -p db
   INIT_TMP=$(mktemp -d)
   mkdir $INIT_TMP/DDD
   cp desiredresult.gz $INIT_TMP/DDD/
@@ -62,11 +61,11 @@ EOF
       break
     else
       echo -n '.'
+      sleep 1
     fi
-    sleep 1
   done
   docker exec -i ddd-db-1 mysql -uroot -p"$ROOT_MYSQLPASS" < db_create.sql
-  sleep 15
+  #sleep 1
   docker-compose down
   cd
   #rm -Rf $INIT_TMP/DDD
@@ -100,12 +99,12 @@ services:
         source: $THIS_CWD/db
         target: /var/lib/mysql
 volumes:
-  wordpress:
   db:
 EOF
 # End indentation break
 
   docker-compose up -d
+  docker cp ddd-drupal-1:/opt/drupal/web $THIS_CWD/html
   docker-compose down
   rm -Rf $INITDIR_TMP/DDD/$COMPOSE_FILE
   rmdir $INITDIR_TMP/DDD
@@ -114,7 +113,8 @@ EOF
 
 main () {
   MAIN_TMP=$(mktemp -d)
-  cd $MAIN_TMP
+  mkdir $MAIN_TMP/DDD
+  cd $MAIN_TMP/DDD
 # Break indentation until the EOF
 cat << EOF > $COMPOSE_FILE 
 version: '3.1'
@@ -126,8 +126,8 @@ services:
       - $DRUPAL_PORT:80
     volumes:
       - type: bind
-        source: sites
-        target: /var/www/html
+        source: $THIS_CWD/html
+        target: /opt/drupal/web
   db:
     image: $DB_IMAGE
     restart: always
@@ -136,18 +136,28 @@ services:
         source: $THIS_CWD/db
         target: /var/lib/mysql
 volumes:
-  wordpress:
+  drupal:
   db:
 EOF
 # End indentation break
 
   docker-compose up -d
   #10249  docker-compose down
-  rm -Rf $MAIN_TMP/$COMPOSE_FILE
+  #rm -Rf $MAIN_TMP/$COMPOSE_FILE
+  rm $MAIN_TMP/DDD/$COMPOSE_FILE
+  rmdir $MAIN_TMP/DDD
   rmdir $MAIN_TMP
 }
 
 
-init_db
-init_dir
-#main
+if [[ -d db ]]; then
+  echo 'db created skipping init_db'
+else
+  init_db
+fi
+if [[ -d html ]]; then
+  echo 'html created skipping init_dir'
+else
+  init_dir
+fi
+main
