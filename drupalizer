@@ -10,8 +10,6 @@ export THIS_CWD=$(pwd)
 : ${DB_USER:=ddduser}
 : ${DB_PASSWORD:=dddpass}
 : ${ROOT_MYSQLPASS:=dddrootpass}
-echo DB_NAME=$DB_NAME DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD
-DESIRED_RESULT=$(cat desiredresult)
 mkdir -p db
 
 init_db () {
@@ -46,18 +44,10 @@ volumes:
 EOF
 
 # End indentation break
-  #pwd
-  #cat db_create.sql
-  #sleep 3
-  #cat $COMPOSE_FILE 
-  #sleep 3
 
   docker pull $DB_IMAGE
   docker-compose up -d
-  #sleep 5
   THIS_RESULT=1
-  #DESIRED_RESULT='mysqld is alive'
-  #DESIRED_RESULT="mysqladmin: [Warning] Using a password on the command line interface can be insecure. mysqld is alive"
   echo -n mysql is still starting.
   until [[ $THIS_RESULT  == 0 ]]
   do
