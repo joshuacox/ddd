@@ -1,0 +1,163 @@
+#!/bin/bash
+#set -eux
+set -eu
+export THIS_CWD=$(pwd)
+: ${DB_IMAGE:='mysql:5.7'}
+: ${DRUPAL_IMAGE:='drupal:9'}
+: ${DRUPAL_PORT:=8080}
+: ${COMPOSE_FILE:=docker-compose.yml}
+: ${DB_NAME:=ddddb}
+: ${DB_USER:=ddduser}
+: ${DB_PASSWORD:=dddpass}
+: ${ROOT_MYSQLPASS:=dddrootpass}
+echo DB_NAME=$DB_NAME DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD
+DESIRED_RESULT=$(cat desiredresult)
+mkdir -p db
+
+init_db () {
+  INIT_TMP=$(mktemp -d)
+  mkdir $INIT_TMP/DDD
+  cp desiredresult.gz $INIT_TMP/DDD/
+  cd $INIT_TMP/DDD
+  gunzip desiredresult.gz
+  # Initialize the database
+
+
+# Break indentation until the EOF
+
+cat << EOF > db_create.sql
+CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EOF
+
+cat << EOF > $COMPOSE_FILE 
+version: '3.1'
+services:
+  db:
+    image: $DB_IMAGE
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '$ROOT_MYSQLPASS' 
+    volumes:
+      - type: bind
+        source: $THIS_CWD/db
+        target: /var/lib/mysql
+volumes:
+  db:
+EOF
+
+# End indentation break
+  #pwd
+  #cat db_create.sql
+  #sleep 3
+  #cat $COMPOSE_FILE 
+  #sleep 3
+
+  docker pull $DB_IMAGE
+  docker-compose up -d
+  #sleep 5
+  THIS_RESULT=1
+  #DESIRED_RESULT='mysqld is alive'
+  #DESIRED_RESULT="mysqladmin: [Warning] Using a password on the command line interface can be insecure. mysqld is alive"
+  echo -n mysql is still starting.
+  until [[ $THIS_RESULT  == 0 ]]
+  do
+    set +e
+    docker exec -it ddd-db-1 mysqladmin ping -p"$ROOT_MYSQLPASS" > $INIT_TMP/DDD/lastresult
+    cp $INIT_TMP/DDD/lastresult /tmp/lastresult
+    diff $INIT_TMP/DDD/desiredresult $INIT_TMP/DDD/lastresult &> /dev/null
+    THIS_RESULT=$?
+    set -e
+    if [[ $THIS_RESULT == 0 ]]; then
+      echo '.'
+      break
+    else
+      echo -n '.'
+    fi
+    sleep 1
+  done
+  docker exec -i ddd-db-1 mysql -uroot -p"$ROOT_MYSQLPASS" < db_create.sql
+  sleep 15
+  docker-compose down
+  cd
+  #rm -Rf $INIT_TMP/DDD
+  rm $INIT_TMP/DDD/$COMPOSE_FILE
+  rm $INIT_TMP/DDD/lastresult
+  rm $INIT_TMP/DDD/desiredresult
+  rm $INIT_TMP/DDD/db_create.sql
+  ls -alh $INIT_TMP/DDD
+  rmdir $INIT_TMP/DDD
+  rmdir $INIT_TMP
+}
+
+init_dir () {
+  INITDIR_TMP=$(mktemp -d)
+  mkdir $INITDIR_TMP/DDD
+  cd $INITDIR_TMP/DDD
+# Break indentation until the EOF
+cat << EOF > $COMPOSE_FILE 
+version: '3.1'
+services:
+  drupal:
+    image: $DRUPAL_IMAGE
+    restart: always
+    ports:
+      - $DRUPAL_PORT:80
+  db:
+    image: $DB_IMAGE
+    restart: always
+    volumes:
+      - type: bind
+        source: $THIS_CWD/db
+        target: /var/lib/mysql
+volumes:
+  wordpress:
+  db:
+EOF
+# End indentation break
+
+  docker-compose up -d
+  docker-compose down
+  rm -Rf $INITDIR_TMP/DDD/$COMPOSE_FILE
+  rmdir $INITDIR_TMP/DDD
+  rmdir $INITDIR_TMP
+}
+
+main () {
+  MAIN_TMP=$(mktemp -d)
+  cd $MAIN_TMP
+# Break indentation until the EOF
+cat << EOF > $COMPOSE_FILE 
+version: '3.1'
+services:
+  drupal:
+    image: $DRUPAL_IMAGE
+    restart: always
+    ports:
+      - $DRUPAL_PORT:80
+    volumes:
+      - type: bind
+        source: sites
+        target: /var/www/html
+  db:
+    image: $DB_IMAGE
+    restart: always
+    volumes:
+      - type: bind
+        source: $THIS_CWD/db
+        target: /var/lib/mysql
+volumes:
+  wordpress:
+  db:
+EOF
+# End indentation break
+
+  docker-compose up -d
+  #10249  docker-compose down
+  rm -Rf $MAIN_TMP/$COMPOSE_FILE
+  rmdir $MAIN_TMP
+}
+
+
+init_db
+init_dir
+#main
