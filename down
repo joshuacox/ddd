@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eu
+export THIS_CWD=$(pwd)
+: ${DB_IMAGE:='mysql:5.7'}
+: ${DRUPAL_IMAGE:='drupal:9'}
+: ${DRUPAL_PORT:=8080}
+: ${COMPOSE_FILE:=docker-compose.yml}
+
+down () {
+  MAIN_TMP=$(mktemp -d)
+  mkdir $MAIN_TMP/DDD
+  cd $MAIN_TMP/DDD
+# Break indentation until the EOF
+cat << EOF > $COMPOSE_FILE 
+version: '3.1'
+services:
+  drupal:
+    image: $DRUPAL_IMAGE
+    restart: always
+    ports:
+      - $DRUPAL_PORT:80
+    volumes:
+      - type: bind
+        source: $THIS_CWD/html
+        target: /opt/drupal/web
+  db:
+    image: $DB_IMAGE
+    restart: always
+    volumes:
+      - type: bind
+        source: $THIS_CWD/db
+        target: /var/lib/mysql
+volumes:
+  drupal:
+  db:
+EOF
+# End indentation break
+
+  docker-compose down
+  #10249  docker-compose down
+  #rm -Rf $MAIN_TMP/$COMPOSE_FILE
+  rm $MAIN_TMP/DDD/$COMPOSE_FILE
+  rmdir $MAIN_TMP/DDD
+  rmdir $MAIN_TMP
+}
+
+down
