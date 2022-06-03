@@ -11,7 +11,7 @@ export THIS_CWD=$(pwd)
 : ${ROOT_MYSQLPASS:=dddrootpass}
 
 init_db () {
-  mkdir -p db
+  mkdir -p .tmp/db
   INIT_TMP=$(mktemp -d)
   mkdir $INIT_TMP/DDD
   cp desiredresult.gz $INIT_TMP/DDD/
@@ -38,7 +38,7 @@ services:
       MYSQL_ROOT_PASSWORD: '$ROOT_MYSQLPASS' 
     volumes:
       - type: bind
-        source: $THIS_CWD/db
+        source: $THIS_CWD/.tmp/db
         target: /var/lib/mysql
 volumes:
   db:
@@ -47,7 +47,7 @@ EOF
 # End indentation break
 
   docker pull $DB_IMAGE
-  docker-compose up -d
+  docker-compose up -d --remove-orphans
   THIS_RESULT=1
   echo -n mysql is still starting.
   until [[ $THIS_RESULT  == 0 ]]
@@ -96,8 +96,10 @@ services:
 EOF
 # End indentation break
 
-  docker-compose up -d
+  docker-compose up -d --remove-orphans
+  echo here
   docker cp ddd-drupal-1:/opt/drupal/web $THIS_CWD/html
+
   sudo chown -R 33:33 $THIS_CWD/html
   docker-compose down
   rm -Rf $INITDIR_TMP/DDD/$COMPOSE_FILE
@@ -127,7 +129,7 @@ services:
     restart: always
     volumes:
       - type: bind
-        source: $THIS_CWD/db
+        source: $THIS_CWD/.tmp/db
         target: /var/lib/mysql
 volumes:
   drupal:
@@ -135,7 +137,7 @@ volumes:
 EOF
 # End indentation break
 
-  docker-compose up -d
+  docker-compose up -d --remove-orphans
   #10249  docker-compose down
   #rm -Rf $MAIN_TMP/$COMPOSE_FILE
   rm $MAIN_TMP/DDD/$COMPOSE_FILE
@@ -144,7 +146,7 @@ EOF
 }
 
 
-if [[ -d db ]]; then
+if [[ -d .tmp/db ]]; then
   echo 'db created skipping init_db'
 else
   init_db

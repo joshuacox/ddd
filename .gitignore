@@ -12,5 +12,5 @@ PORT
 .net
 .sslcid
 DOMAIN
-db
 html
+.tmp/db
