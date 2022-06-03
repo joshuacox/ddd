@@ -14,9 +14,9 @@ export THIS_CWD=$(pwd)
 init_db () {
   mkdir -p .tmp/db
   INIT_TMP=$(mktemp -d)
-  mkdir $INIT_TMP/${DDD}
-  cp desiredresult.gz $INIT_TMP/${DDD}/
-  cd $INIT_TMP/${DDD}
+  mkdir $INIT_TMP/${THIS_NAME}
+  cp desiredresult.gz $INIT_TMP/${THIS_NAME}/
+  cd $INIT_TMP/${THIS_NAME}
   gunzip desiredresult.gz
   # Initialize the database
 
@@ -54,10 +54,10 @@ EOF
   until [[ $THIS_RESULT  == 0 ]]
   do
     set +e
-    docker exec -it ddd-db-1 mysqladmin ping -p"$ROOT_MYSQLPASS" > $INIT_TMP/${DDD}/lastresult
+    docker exec -it ddd-db-1 mysqladmin ping -p"$ROOT_MYSQLPASS" > $INIT_TMP/${THIS_NAME}/lastresult
     # This is a usefule debug step and how I grabbed the desiredresult
-    #cp $INIT_TMP/${DDD}/lastresult /tmp/lastresult
-    diff $INIT_TMP/${DDD}/desiredresult $INIT_TMP/${DDD}/lastresult &> /dev/null
+    #cp $INIT_TMP/${THIS_NAME}/lastresult /tmp/lastresult
+    diff $INIT_TMP/${THIS_NAME}/desiredresult $INIT_TMP/${THIS_NAME}/lastresult &> /dev/null
     THIS_RESULT=$?
     set -e
     if [[ $THIS_RESULT == 0 ]]; then
@@ -72,20 +72,20 @@ EOF
   #sleep 1
   docker-compose down
   cd
-  #rm -Rf $INIT_TMP/${DDD}
-  rm $INIT_TMP/${DDD}/$COMPOSE_FILE
-  rm $INIT_TMP/${DDD}/lastresult
-  rm $INIT_TMP/${DDD}/desiredresult
-  rm $INIT_TMP/${DDD}/db_create.sql
-  ls -alh $INIT_TMP/${DDD}
-  rmdir $INIT_TMP/${DDD}
+  #rm -Rf $INIT_TMP/${THIS_NAME}
+  rm $INIT_TMP/${THIS_NAME}/$COMPOSE_FILE
+  rm $INIT_TMP/${THIS_NAME}/lastresult
+  rm $INIT_TMP/${THIS_NAME}/desiredresult
+  rm $INIT_TMP/${THIS_NAME}/db_create.sql
+  ls -alh $INIT_TMP/${THIS_NAME}
+  rmdir $INIT_TMP/${THIS_NAME}
   rmdir $INIT_TMP
 }
 
 init_dir () {
   INITDIR_TMP=$(mktemp -d)
-  mkdir $INITDIR_TMP/${DDD}
-  cd $INITDIR_TMP/${DDD}
+  mkdir $INITDIR_TMP/${THIS_NAME}
+  cd $INITDIR_TMP/${THIS_NAME}
 # Break indentation until the EOF
 cat << EOF > $COMPOSE_FILE 
 version: '3.1'
@@ -105,15 +105,15 @@ EOF
 
   sudo chown -R 33:33 $THIS_CWD/html
   docker-compose down
-  rm -Rf $INITDIR_TMP/${DDD}/$COMPOSE_FILE
-  rmdir $INITDIR_TMP/${DDD}
+  rm -Rf $INITDIR_TMP/${THIS_NAME}/$COMPOSE_FILE
+  rmdir $INITDIR_TMP/${THIS_NAME}
   rmdir $INITDIR_TMP
 }
 
 main () {
   MAIN_TMP=$(mktemp -d)
-  mkdir $MAIN_TMP/${DDD}
-  cd $MAIN_TMP/${DDD}
+  mkdir $MAIN_TMP/${THIS_NAME}
+  cd $MAIN_TMP/${THIS_NAME}
 # Break indentation until the EOF
 cat << EOF > $COMPOSE_FILE 
 version: '3.1'
@@ -151,8 +151,8 @@ EOF
   docker-compose up -d --remove-orphans
   #10249  docker-compose down
   #rm -Rf $MAIN_TMP/$COMPOSE_FILE
-  rm $MAIN_TMP/${DDD}/$COMPOSE_FILE
-  rmdir $MAIN_TMP/${DDD}
+  rm $MAIN_TMP/${THIS_NAME}/$COMPOSE_FILE
+  rmdir $MAIN_TMP/${THIS_NAME}
   rmdir $MAIN_TMP
 }
 
