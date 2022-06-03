@@ -14,11 +14,21 @@ down () {
 cat << EOF > $COMPOSE_FILE 
 version: '3.1'
 services:
-  drupal:
-    image: $DRUPAL_IMAGE
+  nginx:
+    image: nginx:alpine
     restart: always
     ports:
       - $DRUPAL_PORT:80
+    volumes:
+      - type: bind
+        source: $THIS_CWD/fpm.conf
+        target: /etc/nginx/conf.d/default.conf
+  memcached:
+    image: memcached:1-alpine
+    restart: always
+  fpm:
+    image: $DRUPAL_IMAGE
+    restart: always
     volumes:
       - type: bind
         source: $THIS_CWD/html
@@ -28,10 +38,11 @@ services:
     restart: always
     volumes:
       - type: bind
-        source: $THIS_CWD/db
+        source: $THIS_CWD/.tmp/db
         target: /var/lib/mysql
 volumes:
-  drupal:
+  nginx:
+  fpm:
   db:
 EOF
 # End indentation break

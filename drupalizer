@@ -1,7 +1,8 @@
 #!/bin/bash
 set -eu
 export THIS_CWD=$(pwd)
-: ${THIS_NAME:='DDD'}
+# THIS_NAME should be all lower case
+: ${THIS_NAME:='ddd'}
 : ${DB_IMAGE:='mysql:5.7'}
 : ${DRUPAL_IMAGE:='drupal:9.3-php8.1-fpm-alpine'}
 : ${DRUPAL_PORT:=8080}
@@ -127,6 +128,9 @@ services:
       - type: bind
         source: $THIS_CWD/fpm.conf
         target: /etc/nginx/conf.d/default.conf
+  memcached:
+    image: memcached:1-alpine
+    restart: always
   fpm:
     image: $DRUPAL_IMAGE
     restart: always
